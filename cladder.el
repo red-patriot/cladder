@@ -23,17 +23,111 @@
 
 ;;; Code:
 
+(defun add-class()
+  "Interactively add a new C++ class."
+  (interactive)
+  (if (y-or-n-p "Create inline class? ")
+			(progn
+				(if (y-or-n-p "Add class in new file? ")
+						(progn
+							(create-inline-class-in-new-file)
+							)
+					(progn
+						(create-inline-class-here)
+						)
+					)
+				)
+		(progn
+			(if (y-or-n-p "Add class in new file? ")
+					(progn
+						(create-class-in-new-file)
+						)
+				(progn
+					(create-class-here)
+					)
+				)
+			)
+		)
+  )
+
+(defun create-inline-class-in-new-file()
+  "Create an inline class in a new file."
+  ;; get in the class name and its parent
+	(let (name parent header)
+		(setq name (read-string "Class name: "))
+		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		;; get the names of the header and source files
+		(setq header
+					(read-string (concat "Header file name(default=" name ".h): ")
+											 nil nil (concat name ".h")))
+		(find-file (concat (file-name-directory buffer-file-name) header))
+		(add-inline-declaration name parent)
+		)
+  )
+
+(defun create-inline-class-here()
+  "Create an inline class at the current cursor location."
+    (let (name parent)
+			(setq name (read-string "Class name: "))
+			(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+			(add-inline-declaration name parent)
+			)
+		)
+
+(defun create-class-in-new-file()
+  "Create a class in a new header and source file."
+	;; get in the class name and its parent
+	(let (name parent header source)
+		(setq name (read-string "Class name: "))
+		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		;; get the names of the header and source files
+		(setq header
+					(read-string (concat "Header file name(default=" name ".h): ")
+											 nil nil (concat name ".h")))
+		(setq source
+					(read-string (concat "Source file name(default=" name ".cpp): ")
+											 nil nil (concat name ".cpp")))
+		(find-file (concat (file-name-directory buffer-file-name) source))
+		(add-definition name)
+		(find-file (concat (file-name-directory buffer-file-name) header))
+		(add-declaration name parent)
+		)
+	)
+
+(defun create-class-here()
+  "Create a class at the current cursor location."
+  (let (name parent)
+		(setq name (read-string "Class name: "))
+		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		(add-declaration name parent)
+		)
+  )
+
 (defun add-declaration(name parent)
   "Insert the class declaration at the current cursor position.
 
-NAME is name of classto eb declared.
+NAME is name of class to be declared.
 PARENT is name of superclass of the class."
   (insert "class " name)
   (when (not (string-equal parent "__none"))
-	(insert " : public " parent))
+		(insert " : public " parent))
   (insert " {\npublic:\n")
   (insert "\t" name "();\n")
   (insert "\t~" name "();\n")
+  (insert "\n};")
+  )
+
+(defun add-inline-declaration(name parent)
+  "Insert the class declaration at the current cursor position.
+
+NAME is name of class to be declared.
+PARENT is name of superclass of the class."
+  (insert "class " name)
+  (when (not (string-equal parent "__none"))
+		(insert " : public " parent))
+  (insert " {\npublic:\n")
+  (insert "\t" name "() {\n\n\t}\n\n")
+  (insert "\t~" name "() {\n\n\t}")
   (insert "\n};")
   )
 
@@ -43,37 +137,6 @@ PARENT is name of superclass of the class."
 NAME is the name of the class to be defined."
   (insert name "::" name "() {\n\n}\n\n")
   (insert name "::~" name "() {\n\n}")
-  )
-
-(defun add-class ()
-  "Add a C++ class at the current cursor position."
-  (interactive)
-  (let (class-name class-parent new-file)
-	(setq class-name (read-string "Class name: "))
-	(setq class-parent
-		  (read-string "Parent class(default=none): " nil nil "__none"))
-	;; TODO: add INLINE support
-	(if (y-or-n-p "Add class in new file? ")
-	  (progn
-		(setq new-file t))
-	  (progn
-		(setq new-file nil))
-	  )
-	(when new-file
-	  (let (header-file source-file)
-		(setq header-file
-			  (read-string (concat "Header file name(default=" class-name ".h): ")
-						   nil nil (concat class-name ".h")))
-		(setq source-file
-			  (read-string (concat "Source file name(default=" class-name ".cpp): ")
-						   nil nil (concat class-name ".cpp")))
-		(find-file (concat (file-name-directory buffer-file-name) source-file))
-		(add-definition class-name)
-		(find-file (concat (file-name-directory buffer-file-name) header-file))
-		)
-	  )
-	(add-declaration class-name class-parent)
-	)
   )
 
 (provide 'cladder)
