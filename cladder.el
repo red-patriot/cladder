@@ -29,11 +29,13 @@ n;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 The language is autodetected from the current major mode."
 	(interactive)
 	(if (derived-mode-p 'prog-mode)
+			;; Detect programming language from major mode
 			(progn
 				(when (string-equal major-mode "c++-mode") (add-cpp-class))
 				(when (string-equal major-mode "emacs-lisp-mode") (unsupported "Emacs Lisp"))
 				;; TODO: Add support for more lanugages
 				)
+		;; Inform the user if classes cannot be added.
 		(progn
 			(message "You can only add a class when you are in a programming mode.")
 			)
@@ -42,7 +44,7 @@ The language is autodetected from the current major mode."
 
 (defun add-cpp-class()
   "Add a new C++ class."
-  (interactive)
+	;; Ask the user which style of class will be added and where.
   (if (y-or-n-p "Create inline class? ")
 			(progn
 				(if (y-or-n-p "Add class in new file? ")
@@ -69,7 +71,7 @@ The language is autodetected from the current major mode."
 
 (defun create-inline-cpp-class-in-new-file()
   "Create an inline class in a new file."
-  ;; get in the class name and its parent
+  ;; get the class name and its parent
 	(let (name parent header)
 		(setq name (read-string "Class name: "))
 		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
@@ -86,7 +88,8 @@ The language is autodetected from the current major mode."
 
 (defun create-inline-cpp-class-here()
   "Create an inline class at the current cursor location."
-    (let (name parent)
+	(let (name parent)
+		;; get the class name and its parent
 			(setq name (read-string "Class name: "))
 			(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
 			(add-inline-cpp-declaration name parent)
@@ -95,7 +98,7 @@ The language is autodetected from the current major mode."
 
 (defun create-cpp-class-in-new-file()
   "Create a class in a new header and source file."
-	;; get in the class name and its parent
+	;; get the class name and its parent
 	(let (name parent header source)
 		(setq name (read-string "Class name: "))
 		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
@@ -118,6 +121,7 @@ The language is autodetected from the current major mode."
 
 (defun create-cpp-class-here()
   "Create a class at the current cursor location."
+	;; get the class name and its parent
   (let (name parent)
 		(setq name (read-string "Class name: "))
 		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
