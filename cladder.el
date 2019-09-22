@@ -41,25 +41,40 @@ PARENT is name of superclass of the class."
   "Insert the class declaration at the current cursor position.
 
 NAME is the name of the class to be defined."
-  (insert name "::" name "()\n{\n\n}")
-  (insert name "::~" name "()\n{\n\n}")
+  (insert name "::" name "() {\n\n}\n\n")
+  (insert name "::~" name "() {\n\n}")
   )
 
 (defun add-class ()
   "Add a C++ class at the current cursor position."
   (interactive)
-  (let (class-name class-parent)
+  (let (class-name class-parent new-file)
 	(setq class-name (read-string "Class name: "))
-	(setq class-parent (read-string "Parent class(default=none): " nil nil "__none"))
+	(setq class-parent
+		  (read-string "Parent class(default=none): " nil nil "__none"))
+	;; TODO: add INLINE support
 	(if (y-or-n-p "Add class in new file? ")
-		(setq  class-file (read-file-name "Location: "))
-	  ;; create a new header file and move to it
-	  (setq headerBuf (generate-new-buffer (concat class-name ".h")))
-	  (set-buffer headerBuf)
+	  (progn
+		(setq new-file t))
+	  (progn
+		(setq new-file nil))
+	  )
+	(when new-file
+	  (let (header-file source-file)
+		(setq header-file
+			  (read-string (concat "Header file name(default=" class-name ".h): ")
+						   nil nil (concat class-name ".h")))
+		(setq source-file
+			  (read-string (concat "Source file name(default=" class-name ".cpp): ")
+						   nil nil (concat class-name ".cpp")))
+		(find-file (concat (file-name-directory buffer-file-name) source-file))
+		(add-definition class-name)
+		(find-file (concat (file-name-directory buffer-file-name) header-file))
+		)
 	  )
 	(add-declaration class-name class-parent)
 	)
   )
-	
-(provide 'add-class)
-;;; cpp-class.el ends here
+
+(provide 'cladder)
+;;; cladder.el ends here
