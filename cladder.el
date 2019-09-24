@@ -12,7 +12,7 @@
 ;; (at your option) any later version.
 
 ;; This program is distributed in the hope that it will be useful,
-n;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
@@ -32,6 +32,8 @@ The language is autodetected from the current major mode."
 			;; Detect programming language from major mode
 			(progn
 				(when (string-equal major-mode "c++-mode") (add-cpp-class))
+				(when (string-equal major-mode "python-mode") (add-py-class))
+				;; Message about languages without classes
 				(when (string-equal major-mode "emacs-lisp-mode") (unsupported "Emacs Lisp"))
 				;; TODO: Add support for more lanugages
 				)
@@ -42,6 +44,7 @@ The language is autodetected from the current major mode."
 		)
 	)
 
+;;; C++ Class functions
 (defun add-cpp-class()
   "Add a new C++ class."
 	;; Ask the user which style of class will be added and where.
@@ -70,15 +73,15 @@ The language is autodetected from the current major mode."
   )
 
 (defun create-inline-cpp-class-in-new-file()
-  "Create an inline class in a new file."
+  "Create an inline C++ class in a new file."
   ;; get the class name and its parent
 	(let (name parent header)
 		(setq name (read-string "Class name: "))
-		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
 		;; get the names of the header and source files
 		(setq header
 					(read-string (concat "Header file name(default=" name ".h): ")
-											 nil nil name))
+											 nil " " name))
 		(find-file (concat
 								(file-name-directory buffer-file-name) (concat header ".h")))
 		(add-cpp-include-guards header)
@@ -87,28 +90,28 @@ The language is autodetected from the current major mode."
   )
 
 (defun create-inline-cpp-class-here()
-  "Create an inline class at the current cursor location."
+  "Create an inline C++ class at the current cursor location."
 	(let (name parent)
 		;; get the class name and its parent
 			(setq name (read-string "Class name: "))
-			(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+			(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
 			(add-inline-cpp-declaration name parent)
 			)
 		)
 
 (defun create-cpp-class-in-new-file()
-  "Create a class in a new header and source file."
+  "Create a C++ class in a new header and source file."
 	;; get the class name and its parent
 	(let (name parent header source)
 		(setq name (read-string "Class name: "))
-		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
 		;; get the names of the header and source files
 		(setq header
 					(read-string (concat "Header file name(default=" name ".h): ")
-											 nil nil name))
+											 nil " " name))
 		(setq source
 					(read-string (concat "Source file name(default=" name ".cpp): ")
-											 nil nil name))
+											 nil " " name))
 		(find-file (concat
 								(file-name-directory buffer-file-name) (concat source ".cpp")))
 		(add-cpp-definition name header)
@@ -120,11 +123,11 @@ The language is autodetected from the current major mode."
 	)
 
 (defun create-cpp-class-here()
-  "Create a class at the current cursor location."
+  "Create a C++ class at the current cursor location."
 	;; get the class name and its parent
   (let (name parent)
 		(setq name (read-string "Class name: "))
-		(setq parent (read-string "Parent class(default=none): " nil nil "__none"))
+		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
 		(add-cpp-declaration name parent)
 		)
   )
@@ -148,9 +151,12 @@ PARENT is name of superclass of the class."
   (insert "class " name)
   (when (not (string-equal parent "__none"))
 		(insert " : public " parent))
-  (insert " {\npublic:\n")
-  (insert "\t" name "();\n")
-  (insert "\t~" name "();\n")
+  (insert " {\npublic:")
+  (newline-and-indent)
+  (insert name "();")
+  (newline-and-indent)
+  (insert "~" name "();")
+  (newline-and-indent)
   (insert "\n};")
   )
 
@@ -162,9 +168,12 @@ PARENT is name of superclass of the class."
   (insert "class " name)
   (when (not (string-equal parent "__none"))
 		(insert " : public " parent))
-  (insert " {\npublic:\n")
-  (insert "\t" name "() { }\n")
-  (insert "\t~" name "() { }")
+  (insert " {\npublic:")
+  (newline-and-indent)
+  (insert  name "() { }")
+  (newline-and-indent)
+  (insert "~" name "() { }")
+  (newline-and-indent)
   (insert "\n};")
   )
 
@@ -178,6 +187,49 @@ HEADER is the name of the header where the declaration if the class is."
   (insert name "::~" name "() {\n\n}")
   )
 
+
+;;; Python Class functions
+(defun add-py-class()
+	"Add a new python class."
+	(if (y-or-n-p "Add class in new file? ")
+			(progn
+				(create-py-class-in-new-file)
+				)
+		(progn
+			(create-py-class-here)
+			)
+		)
+	)
+
+(defun create-py-class-in-new-file()
+	"Add new Python class in a new file."
+	(let (name parent)
+		(setq name (read-string "Class name: "))
+		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
+		)
+	)
+
+(defun create-py-class-here()
+	"Add new Python class at the current cursor location."
+	(let (name parent)
+		(setq name (read-string "Class name: "))
+		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
+		(insert "class " name "(")
+		(when (not (string-equal parent "__none"))
+			(insert parent))
+		(insert "):")
+        (newline-and-indent)
+		(insert "\"\"\"CLASS DOCSTRING\"\"\"")
+        (newline-and-indent)
+		(insert "def __init__(self):")
+        (newline-and-indent)
+		(insert "\"\"\"Initialize " name " attributes.\"\"\"")
+        (newline-and-indent)
+		)
+	)
+
+
+;; Unsupported class functions
 (defun unsupported(language)
 	"Inform the user that this language is not object-oriented.
 
