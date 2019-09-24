@@ -185,7 +185,7 @@ PARENT is name of superclass of the class."
 
 NAME is the name of the class to be defined.
 HEADER is the name of the header where the declaration if the class is."
-	(insert "#include \"" header "\"\n\n")
+  (insert "#include \"" header ".h\"\n\n")
   (insert name "::" name "() {\n\n}\n\n")
   (insert name "::~" name "() {\n\n}")
   )
