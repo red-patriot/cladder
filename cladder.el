@@ -1,4 +1,4 @@
-;;; cpp-class.el --- Autogenerate C++ class headers
+;;; cladder.el --- Autogenerate class definitions in various languages.
 
 ;; copyright (C) 2019 Bryson Tanner
 
@@ -43,6 +43,9 @@ The language is autodetected from the current major mode."
 			)
 		)
 	)
+
+;; bind add-class to a keyboard shortcut
+(global-set-key (kbd "C-x C-a") 'add-class)
 
 ;;; C++ Class functions
 (defun add-cpp-class()
@@ -203,9 +206,25 @@ HEADER is the name of the header where the declaration if the class is."
 
 (defun create-py-class-in-new-file()
 	"Add new Python class in a new file."
-	(let (name parent)
+	(let (name parent file)
 		(setq name (read-string "Class name: "))
 		(setq parent (read-string "Parent class(default=none): " nil " " "__none"))
+		(setq file
+			  (read-string (concat "Source file name(default=" name ".py): ")
+						   nil " " name))
+		(find-file (concat
+					(file-name-directory buffer-file-name) (concat file ".py")))
+		(insert "class " name "(")
+		(when (not (string-equal parent "__none"))
+			(insert parent))
+		(insert "):")
+        (newline-and-indent)
+		(insert "\"\"\"CLASS DOCSTRING\"\"\"")
+        (newline-and-indent)
+		(insert "def __init__(self):")
+        (newline-and-indent)
+		(insert "\"\"\"Initialize " name " attributes.\"\"\"")
+        (newline-and-indent)
 		)
 	)
 
