@@ -6,7 +6,6 @@ This package adds the interactive command `add-class` to emacs, which auto-gener
 # Supported Languages
 - C++
 - Python
-- Emacs Lisp
 
 # Installing
  First, clone this repository.
