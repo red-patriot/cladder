@@ -1,7 +1,9 @@
 # cladder
 Emacs class adder: a package to auto-generate class definitions.
 
-This package adds the interactive command `add-class` to emacs, which auto-generates a declaration and/or definition for a class. By default, this fucntion is bound to C-x C-a, but this can be modified by editing the source code. 
+![](https://github.com/red-patriot/cladder/blob/master/media/cladder_demo.gif)
+
+This package adds the interactive command `add-class` to emacs, which auto-generates a declaration and/or definition for a class. By default, this fucntion is bound to `C-x C-a`, but this can be modified by editing the source code. 
 
 # Supported Languages
 - C++
